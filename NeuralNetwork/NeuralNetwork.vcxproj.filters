@@ -27,6 +27,12 @@
     <ClInclude Include="TimeLogger.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
+    <ClInclude Include="json.hpp">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Connect4.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -42,6 +48,9 @@
       <Filter>Quelldateien</Filter>
     </ClCompile>
     <ClCompile Include="TimeLogger.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="Connect4.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
   </ItemGroup>

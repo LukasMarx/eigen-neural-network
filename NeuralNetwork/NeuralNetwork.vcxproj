@@ -145,7 +145,7 @@
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>../eigen;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <OpenMPSupport>true</OpenMPSupport>
+      <OpenMPSupport>false</OpenMPSupport>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -155,12 +155,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Connect4.h" />
     <ClInclude Include="file.h" />
+    <ClInclude Include="json.hpp" />
     <ClInclude Include="NeuralNetwork.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="TimeLogger.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Connect4.cpp" />
     <ClCompile Include="file.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="NeuralNetwork.cpp" />

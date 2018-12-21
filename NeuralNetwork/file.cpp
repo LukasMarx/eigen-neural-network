@@ -39,7 +39,7 @@ std::pair < std::vector<MatrixXf>, std::vector<float> > File::ReadToMatrix(std::
 			}
 			else
 			{
-				values[i] = std::stof(element, 0);
+				values[i - 1] = std::stof(element, 0);
 			}
 			i++;
 		}
