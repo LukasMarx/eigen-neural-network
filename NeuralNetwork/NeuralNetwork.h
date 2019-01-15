@@ -37,5 +37,7 @@ public:
 
 	void load(std::string path);
 
+	void reset();
+
 };
 

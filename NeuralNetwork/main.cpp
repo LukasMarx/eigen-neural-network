@@ -112,32 +112,179 @@ using namespace Eigen;
 //}
 //
 
-void main() {
-	Connect4* connect = new Connect4(7, 6);
+MatrixXf CreateOutput(int slot, int numSlots) {
+	MatrixXf m = MatrixXf(numSlots, 1);
+
+	m.setConstant(0.01);
+
+	m(slot, 0) = 0.99;
+
+	return m;
+}
+
+int VectorToNumber(MatrixXf& input) {
+
+	int highest = 0;
+
+	for (int j = 0; j < 7; j++)
+	{
+		if ((input)(j, 0) > (input)(highest, 0))
+		{
+			highest = j;
+		}
+	}
+	return highest;
+}
+
+
+void PlayOneGame(NeuralNetwork& A, NeuralNetwork& B, std::vector<MatrixXf>& trainDataA, std::vector<MatrixXf>& resultsA, std::vector<MatrixXf>& trainDataB, std::vector<MatrixXf>& resultsB) {
+	
+	int numSlots = 7;
+	Connect4* connect = new Connect4(numSlots, 6);
 
 	int player = 1;
+	int playCount = 0;
+	int randomPlayCount = 0;
 	while (true) {
-		std::string slot;
-		std::getline(std::cin, slot);
 
-		bool won = connect->Play(std::stoi(slot), player);
-		connect->Print();
+		std::vector<MatrixXf> boardsA;
+		std::vector<MatrixXf> boardsB;
+		std::vector<MatrixXf> playsA;
+		std::vector<MatrixXf> playsB;
+
+		MatrixXf boardBeforePlay = connect->Serialize();
+		
+		//connect->Print();
+
+		int slot;
+		
+		if (player == 1) {
+			slot = VectorToNumber(*A.query(boardBeforePlay));
+		}
+		else {
+			slot = VectorToNumber(*B.query(boardBeforePlay));
+		}
+
+		bool didPlace = connect->Play(slot, player);
+
+		if (!didPlace) {
+			slot = connect->RandomPlay();
+			connect->Play(slot, player);
+			randomPlayCount++;
+		}
+
+		bool won = connect->HasWon(player);
+
+		if (player == 1) {
+			playsA.push_back(CreateOutput(slot, numSlots));
+			boardsA.push_back(boardBeforePlay);
+		}
+		else {
+			playsB.push_back(CreateOutput(slot, numSlots));
+			boardsB.push_back(boardBeforePlay);
+		}
 
 		if (won) {
-			std::cout << "player " << player << " won!";
+			if (player == 1) {
+				trainDataA.insert(trainDataA.end(), boardsA.begin(), boardsA.end());
+				resultsA.insert(resultsA.end(), playsA.begin(), playsA.end());
+
+				playsB.clear();
+				boardsB.clear();
+				
+			}
+			else {
+				trainDataB.insert(trainDataB.end(), boardsB.begin(), boardsB.end());
+				resultsB.insert(resultsB.end(), playsB.begin(), playsB.end());
+				playsA.clear();
+				boardsA.clear();
+				
+			}
+			std::cout << playCount << ", " << randomPlayCount << ", " << player << std::endl;
+			return;
+		}
+
+		if (connect->IsGameOver()) {
 			return;
 		}
 
 		if (player == 1) {
+			
 			player = 2;
 		}
 		else {
 			player = 1;
 		}
-
+		playCount++;
 
 	}
-	
+
+	delete connect;
+}
+
+void main() {
+	/*std::vector<MatrixXf> trainDataA;
+	std::vector<MatrixXf> trainDataB;
+	std::vector<MatrixXf> resultsA;
+	std::vector<MatrixXf> resultsB;
+
+	int layers[4] = { 42, 42, 7 };
+
+	NeuralNetwork* A = new NeuralNetwork(layers, 3);
+	NeuralNetwork* B = new NeuralNetwork(layers, 3);
 
 	
+	for (int j = 0; j < 1000; j++) {
+		for (int i = 0; i < 100; i++) {
+			PlayOneGame(*A, *B, trainDataA, resultsA, trainDataB, resultsB);
+		}
+		if (trainDataA.size() > 0) {
+			A->reset();
+			A->train(&trainDataA[0], &resultsA[0], trainDataA.size(), 0.5F, 10);
+		}
+		
+		if (trainDataB.size() > 0) {
+			B->reset();
+			B->train(&trainDataB[0], &resultsB[0], trainDataB.size(), 0.5F, 10);
+		}
+	}*/
+
+	int numSlots = 7;
+	Connect4* connect = new Connect4(numSlots, 6);
+
+	int currentPlayer = 1;
+
+	while (true) {
+		if (connect->IsGameOver()) {
+			return;
+		}
+
+		if (currentPlayer == 1) {
+			std::string slot;
+
+			std::cin >> slot;
+
+			connect->Play(std::stoi(slot), currentPlayer);
+
+			if (connect->HasWon(currentPlayer)) {
+				std::cout << "Player 1 has won!";
+			}
+
+			currentPlayer = 2;
+		}
+		else {
+			auto move = connect->MiniMaxPlay(currentPlayer, 0, 0);
+
+			connect->Play(move.first, currentPlayer);
+
+			if (connect->HasWon(currentPlayer)) {
+				std::cout << "Player 2 has won!";
+			}
+			currentPlayer = 1;
+		}
+
+		connect->Print();
+
+	}
+
 }
